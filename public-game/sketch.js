@@ -150,35 +150,33 @@ async function getFinalScore() {
 1.2. Reduce player's width each time the user press the button A
 _____________________________________________ */
 
-socket.on('arduino-message', (arduinoMessages) => {
-
-    //
-    
+socket.on('arduinoMessage', (arduinoMessage) => {
+    console.log(arduinoMessage);
+    let actuatorValue = parseInt(arduinoMessage[0])
+    let btnAValue = parseInt(arduinoMessage[1])
+    let btnBValue = parseInt(arduinoMessage[2])
 })
 
-/*___________________________________________
-
-2) Include the fetch method to POST each time the player scores a point and it should send a char to ARDUINO in order to turn on and off the lights.
-
-It should send an "S" char to the ARDUINO
-_____________________________________________ */
-
 async function sendScore(point) {
-
-    //
-    
-    await fetch('/score', request)
-}
-
-
-/*___________________________________________
-
-3) Include the fetch method to POST when the game is over and turn on the lights by sending the "L" char
-_____________________________________________ */
+    const data = { S: 'S', point: point };
+    const response = await fetch('/score', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+    return response.json();
+  }
 
 async function gameResult() {
-    
-    //
-
-    await fetch('/game-over', request)
-}
+    const data = { S: 'L', score: score };
+    const response = await fetch('/score', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+    return response.json();
+  }

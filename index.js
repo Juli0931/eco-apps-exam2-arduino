@@ -8,18 +8,16 @@ import {
 import cors from "cors";
 
 //Serial Port Configuration
-
 import {
     SerialPort,
     ReadlineParser
-} from "serialPort"
+} from "serialport"
 const protocolConfiguration = {
-    path: '/dev/cu.usbserial-A50285BI',
+    path: 'COM8',
     baudRate: 9600
 }
 const serialPort = new SerialPort(protocolConfiguration);
 const parser = serialPort.pipe(new ReadlineParser());
-
 
 
 const PORT = 8080
@@ -39,7 +37,6 @@ expressApp.use(express.json())
 
 io.on('connection', (socket) => {
     console.log('Connected!', socket.id)
-    //
 })
 
 let currentScore = 0;
@@ -50,16 +47,10 @@ expressApp.get('/final-score', (request, response) => {
     });
 })
 
-/*___________________________________________
-
-1) Create an endpoint to POST player's current score and print it on console
-It should send a messago to ARDUINO to turn on and off the lights when the player scores a point
-_____________________________________________ */
-
-expressApp.post('/score', (request, response) => {
-
-    //
-    
+expressApp.post('/score', (request, response) =>{
+    console.log(request.body);
+    serialPort.write('S');
+    response.end();
 })
 
 
@@ -69,11 +60,10 @@ expressApp.post('/score', (request, response) => {
 _____________________________________________ */
 
 expressApp.post('/game-over', (request, response) => {
-
-    //
-    
+    console.log(response.content);
+    serialPort.write('L');
+    response.end();
 })
-
 
 
 let arduinoMessage = {
@@ -89,13 +79,6 @@ parser.on('data', (data) => {
     arduinoMessage.btnAValue = parseInt(dataArray[1])
     arduinoMessage.btnBValue = parseInt(dataArray[2])
 
-    /*___________________________________________
-
-3) Use the socket.io instance to send the message from the ARDUINO to the client in the browser
-
-_____________________________________________ */
-
-// PUT IT HERE
-
-
+    io.emit('arduinoMessage', arduinoMessage);
+    console.log(arduinoMessage);
 });
